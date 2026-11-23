@@ -1,0 +1,5 @@
+models/*.gguf
+tools/
+__pycache__/
+*.pyc
+/before

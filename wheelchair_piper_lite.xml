@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Educational low-poly assembly: simplified FIXED powered-wheelchair +
+  AgileX PiPER joint chain, actuator ranges and joint transforms transcribed
+  from the MIT-licensed MuJoCo Menagerie AgileX PiPER model (RosenYin, 2024).
+  Primitive geometry is an educational approximation, not official CAD.
+  Not a human-use safety model; PiPER finger dynamics are simplified.
+-->
+<mujoco model="wheelchair_piper_lite">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast" cone="elliptic" impratio="10"/>
+  <default>
+    <geom friction="0.8 0.005 0.0001" condim="3"/>
+    <default class="piper">
+      <joint frictionloss="0.3" armature="0.005" damping="0.15"/>
+      <position inheritrange="1" forcerange="-100 100"/>
+      <default class="finger">
+        <joint frictionloss="0" type="slide" damping="0.2"/>
+        <position forcerange="-10 10"/>
+      </default>
+      <default class="armvisual">
+        <geom contype="0" conaffinity="0" group="2" density="0"/>
+      </default>
+    </default>
+  </default>
+  <asset>
+    <material name="seat_fabric" rgba="0.14 0.21 0.32 1"/>
+    <material name="chair_frame" rgba="0.28 0.34 0.42 1"/>
+    <material name="tyre" rgba="0.09 0.105 0.12 1"/>
+    <material name="piper_red" rgba="0.86 0.18 0.17 1"/>
+    <material name="piper_gray" rgba="0.70 0.74 0.77 1"/>
+  </asset>
+  <worldbody>
+    <light name="keylight" pos="0 -2 3.5" dir="0 .3 -1" diffuse=".88 .88 .88"/>
+    <light name="fill" pos="-2 2 3" dir=".4 -.3 -1" diffuse=".4 .45 .5"/>
+    <geom name="floor" type="plane" pos="0 0 0" size="5 5 .1" rgba=".91 .93 .96 1"/>
+    <body name="wheelchair_base" pos="0 0 0">
+      <!-- Fixed wheelchair proxy: +x is forward, -y is user's right. -->
+      <geom name="battery_box" type="box" pos="0 0 .26" size=".30 .25 .105" material="chair_frame"/>
+      <geom name="seat" type="box" pos="-.08 0 .62" size=".27 .245 .045" material="seat_fabric"/>
+      <geom name="backrest" type="box" pos="-.34 0 .87" size=".045 .245 .29" material="seat_fabric"/>
+      <geom name="left_armrest" type="box" pos="-.015 .302 .79" size=".23 .040 .032" material="chair_frame"/>
+      <geom name="right_armrest" type="box" pos="-.015 -.302 .79" size=".23 .040 .032" material="chair_frame"/>
+      <geom name="left_rear_wheel" type="cylinder" pos="-.22 .34 .34" quat=".7071068 .7071068 0 0" size=".265 .043" material="tyre"/>
+      <geom name="right_rear_wheel" type="cylinder" pos="-.22 -.34 .34" quat=".7071068 .7071068 0 0" size=".265 .043" material="tyre"/>
+      <geom name="left_hub" type="cylinder" pos="-.22 .39 .34" quat=".7071068 .7071068 0 0" size=".065 .011" material="piper_gray"/>
+      <geom name="right_hub" type="cylinder" pos="-.22 -.39 .34" quat=".7071068 .7071068 0 0" size=".065 .011" material="piper_gray"/>
+      <geom name="left_caster" type="cylinder" pos=".38 .27 .105" quat=".7071068 .7071068 0 0" size=".088 .030" material="tyre"/>
+      <geom name="right_caster" type="cylinder" pos=".38 -.27 .105" quat=".7071068 .7071068 0 0" size=".088 .030" material="tyre"/>
+      <geom name="footrest" type="box" pos=".40 0 .19" size=".20 .22 .018" material="chair_frame"/>
+      <geom name="arm_mount_plate" type="box" pos=".06 -.36 .785" size=".125 .100 .025" material="chair_frame"/>
+      <site name="arm_mount_site" pos=".06 -.36 .83" size=".012" rgba=".1 .5 1 .6"/>
+      <camera name="head_rgb" pos="-.28 0 1.19" xyaxes="-.8 -.6 0 0 0 1" fovy="72"/>
+      <body name="piper_mount" pos=".06 -.36 .83">
+        <!-- PiPER kinematics and joint ranges follow Menagerie piper.xml. -->
+        <body name="base_link" childclass="piper" gravcomp="1">
+          <inertial pos="-.00979275 .00000183 .04101" mass=".162549" diaginertia=".000269445 .000227478 .000221437"/>
+          <geom class="armvisual" type="cylinder" pos="0 0 .055" size=".078 .055" material="piper_gray"/>
+          <body name="link1" pos="0 0 .123" quat=".707105 0 0 -.707108" gravcomp="1">
+            <inertial pos=".00131676 .000310289 -.00922875" mass=".097868" diaginertia=".0000925942 .000083083 .000076947"/>
+            <joint name="joint1" axis="0 0 1" range="-2.618 2.618"/>
+            <geom class="armvisual" type="cylinder" pos="0 0 0" size=".065 .050" material="piper_red"/>
+            <body name="link2" quat=".499998 .5 -.500002 -.5" gravcomp="1">
+              <inertial pos=".148794 -.00242027 .00175155" mass=".290889" diaginertia=".00177549 .00173142 .00014552"/>
+              <joint name="joint2" axis="0 0 1" range="0 3.14"/>
+              <geom class="armvisual" type="capsule" fromto="0 0 0 .28358 .028726 0" size=".045" material="piper_gray"/>
+              <body name="link3" pos=".28358 .028726 0" quat=".998726 0 0 .0504536" gravcomp="1">
+                <inertial pos="-.0996835 .0349477 .000508026" mass=".290848" diaginertia=".000241946 .000222224 .000100384"/>
+                <joint name="joint3" axis="0 0 1" range="-2.697 0"/>
+                <geom class="armvisual" type="capsule" fromto="0 0 0 -.24221 .068514 0" size=".038" material="piper_red"/>
+                <body name="link4" pos="-.24221 .068514 0" quat=".544767 -.544769 -.450809 .450808" gravcomp="1">
+                  <inertial pos=".000276465 -.00102804 -.00472831" mass=".127087" diaginertia=".0000487057 .0000410595 .0000382001"/>
+                  <joint name="joint4" axis="0 0 1" range="-1.832 1.832"/>
+                  <geom class="armvisual" type="cylinder" size=".045 .064" material="piper_gray"/>
+                  <body name="link5" quat=".707105 .707108 0 0" gravcomp="1">
+                    <inertial pos=".0000882262 .0566829 -.0019612" mass=".144711" diaginertia=".001 .001 .001"/>
+                    <joint name="joint5" axis="0 0 1" range="-1.22 1.22"/>
+                    <geom class="armvisual" type="capsule" fromto="0 0 0 0 .091 0" size=".033" material="piper_gray"/>
+                    <body name="link6" pos="0 .091 .0014165" quat="0 0 -.707105 -.707108" gravcomp="1">
+                      <inertial pos=".0010312 .0121761 .0315481" mass="1.2" diaginertia=".001 .001 .001"/>
+                      <joint name="joint6" axis="0 0 1" range="-3.14 3.14"/>
+                      <geom class="armvisual" type="capsule" fromto="0 0 0 0 0 .13503" size=".027" material="piper_gray"/>
+                      <site name="ee_site" pos="0 0 .15" size=".018" rgba="0 1 .6 .9"/>
+                      <camera name="wrist_rgb" pos="0 0 .15" quat="0 1 0 0" fovy="80"/>
+                      <body name="link7" pos="0 0 .13503" quat=".000000019 .000000019 .707108 .707105" gravcomp="1">
+                        <inertial pos="-.000277778 -.0467673 -.00921029" mass=".0264823" diaginertia=".001 .001 .001"/>
+                        <joint name="joint7" axis="0 0 -1" class="finger" range="0 .035"/>
+                        <geom class="armvisual" type="capsule" fromto="0 0 0 0 -.075 0" size=".011" material="piper_gray"/>
+                        <geom name="finger_pad_left" type="box" size=".012 .014 .005" pos="0 -.055 -.004" rgba=".10 .12 .14 .9" contype="1" conaffinity="1"/>
+                      </body>
+                      <body name="link8" pos="0 0 .13503" quat=".000000019 -.000000019 -.707108 .707105" gravcomp="1">
+                        <inertial pos=".000277817 .0467674 -.0092103" mass=".0264822" diaginertia=".001 .001 .001"/>
+                        <joint name="joint8" axis="0 0 1" class="finger" range="-.035 0"/>
+                        <geom class="armvisual" type="capsule" fromto="0 0 0 0 .075 0" size=".011" material="piper_gray"/>
+                        <geom name="finger_pad_right" type="box" size=".012 .014 .005" pos="0 .055 -.004" rgba=".10 .12 .14 .9" contype="1" conaffinity="1"/>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+    <body name="elevator_panel" pos=".43 -.87 .99">
+      <geom type="box" name="panel" size=".145 .035 .20" rgba=".38 .42 .46 1"/>
+      <body name="elevator_button_3" pos="0 .065 0">
+        <joint name="button_3_slide" type="slide" axis="0 -1 0" range="0 .015" limited="true" stiffness="220" damping="3"/>
+        <geom name="button_3_geom" type="cylinder" size=".045 .015" quat=".7071068 .7071068 0 0" rgba=".29 .67 .98 1" mass=".025"/>
+        <site name="button_target" pos="0 .04 0" size=".018" rgba="1 .85 .1 .8"/>
+      </body>
+    </body>
+    <body name="side_table" pos=".65 .05 .65">
+      <geom name="table_top" type="box" size=".29 .34 .03" rgba=".76 .57 .37 1"/>
+      <geom name="table_leg" type="box" pos="0 0 -.31" size=".035 .035 .31" rgba=".55 .57 .61 1"/>
+    </body>
+    <body name="object_cube" pos=".60 -.08 .735">
+      <freejoint/>
+      <geom name="pick_cube" type="box" size=".035 .035 .035" density="400" rgba=".94 .58 .20 1"/>
+    </body>
+  </worldbody>
+  <equality>
+    <joint joint1="joint8" joint2="joint7" polycoef="0 -1 0 0 0"/>
+  </equality>
+  <actuator>
+    <position name="joint1" joint="joint1" class="piper" kp="80" kv="5"/>
+    <position name="joint2" joint="joint2" class="piper" kp="80" kv="5"/>
+    <position name="joint3" joint="joint3" class="piper" kp="80" kv="5"/>
+    <position name="joint4" joint="joint4" class="piper" kp="40" kv="5"/>
+    <position name="joint5" joint="joint5" class="piper" kp="10" kv="1.5"/>
+    <position name="joint6" joint="joint6" class="piper" kp="10" kv="1.5"/>
+    <position name="gripper" joint="joint7" class="finger" kp="40" kv="5"/>
+  </actuator>
+</mujoco>
